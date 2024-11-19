@@ -1,0 +1,32 @@
+import socket
+import time
+from concurrent.futures import ThreadPoolExecutor
+
+# Target IP and port
+TARGET_IP = '127.0.0.1'  # Replace with the target IP address (e.g., "192.168.1.100")
+TARGET_PORT = 8080       # Replace with the target port number
+
+# Number of connections per second
+CONNECTIONS_PER_SECOND = 50
+
+def send_socket_request():
+    """Establish a connection to the target IP and port."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((TARGET_IP, TARGET_PORT))
+            print(f"Connected to {TARGET_IP}:{TARGET_PORT}")
+    except Exception as e:
+        print(f"Connection failed: {e}")
+
+def simulate_traffic(duration=10):
+    """Simulate high traffic to the specified IP and port for a set duration in seconds."""
+    print(f"Simulating traffic to {TARGET_IP}:{TARGET_PORT} for {duration} seconds.")
+    start_time = time.time()
+    
+    with ThreadPoolExecutor(max_workers=CONNECTIONS_PER_SECOND) as executor:
+        while time.time() - start_time < duration:
+            executor.submit(send_socket_request)
+            time.sleep(1 / CONNECTIONS_PER_SECOND)
+
+# Start traffic simulation
+simulate_traffic(duration=10)
